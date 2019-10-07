@@ -2,6 +2,7 @@ package com.evoluum.desafio.service;
 
 import com.evoluum.desafio.config.interceptor.RequestResponseLoggingInterceptor;
 import com.evoluum.desafio.domain.Estado;
+import com.evoluum.desafio.domain.Municipio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -14,7 +15,7 @@ import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriTemplateHandler;
@@ -27,11 +28,14 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
-@Component
+@Service
 public class IbgeProxyService {
 
     private static final String URL_ESTADOS = "/estados";
+    private static final String URL_MUNICIPIOS_BY_UF = "/estados/{id}/municipios";
+    private static final String URL_MUNICIPIOS = "/municipios";
 
     private final RestTemplate restTemplate;
     private final UriTemplateHandler uriTemplate;
@@ -51,6 +55,25 @@ public class IbgeProxyService {
         Files.createDirectories(this.workDir);
     }
 
+    public List<Estado> findAllStates(){
+        final URI uri = uriTemplate.expand(URL_ESTADOS);
+        RequestEntity<Void> requestEntity = RequestEntity.get(uri).build();
+        return doRequest(requestEntity, new ParameterizedTypeReference<List<Estado>>() {});
+    }
+
+    public List<Municipio> findAllCountys() {
+        final URI uri = uriTemplate.expand(URL_MUNICIPIOS);
+        RequestEntity<Void> requestEntity = RequestEntity.get(uri).build();
+        return doRequest(requestEntity, new ParameterizedTypeReference<List<Municipio>>(){});
+    }
+
+    public List<Municipio> findCountyByStateId(String ids) {
+        Objects.requireNonNull(ids, "O parametro ids não pode ser nulo");
+        final URI uri = uriTemplate.expand(URL_MUNICIPIOS_BY_UF, ids);
+        RequestEntity<Void> requestEntity = RequestEntity.get(uri).build();
+        return doRequest(requestEntity, new ParameterizedTypeReference<List<Municipio>>(){});
+    }
+
     private List<HttpMessageConverter<?>> configureMessageConverter(){
         List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
         //Add the Jackson Message converter
@@ -61,12 +84,6 @@ public class IbgeProxyService {
         converter.setSupportedMediaTypes(Collections.singletonList(MediaType.ALL));
         messageConverters.add(converter);
         return messageConverters;
-    }
-
-    public List<Estado> findAllStates(){
-        final URI uri = uriTemplate.expand(URL_ESTADOS);
-        RequestEntity<Void> requestEntity = RequestEntity.get(uri).build();
-        return doRequest(requestEntity, new ParameterizedTypeReference<List<Estado>>() {});
     }
 
     public <T> T doRequest(RequestEntity<?> requestEntity, ParameterizedTypeReference<T> responseType) {
@@ -83,10 +100,6 @@ public class IbgeProxyService {
             statusCode = e.getStatusCode();
         }
         throw new RuntimeException("Erro no serviço: URI=" + requestEntity.getUrl() + " status=" + statusCode);
-    }
-
-    public UriTemplateHandler getUriTemplate() {
-        return uriTemplate;
     }
 
     public Path getWorkDir() {

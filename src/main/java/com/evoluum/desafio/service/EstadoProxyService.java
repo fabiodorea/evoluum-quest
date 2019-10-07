@@ -4,15 +4,12 @@ import com.evoluum.desafio.domain.Estado;
 import com.evoluum.desafio.domain.interfaces.EstadoService;
 import com.evoluum.desafio.domain.views.EstadoResponse;
 import com.evoluum.desafio.exception.ProxyException;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.RequestEntity;
-import org.springframework.retry.support.RetryTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -23,22 +20,19 @@ import java.util.stream.Collectors;
 @Service
 public class EstadoProxyService implements EstadoService {
 
-    private static final String URL_ESTADOS = "/estados";
-
+    @Autowired
     private final IbgeProxyService ibgeProxyService;
-    private RetryTemplate retryTemplate;
 
-    public EstadoProxyService(IbgeProxyService ibgeProxyService, RetryTemplate retryTemplate) {
+    public EstadoProxyService(IbgeProxyService ibgeProxyService) {
         this.ibgeProxyService = ibgeProxyService;
-        this.retryTemplate = retryTemplate;
     }
 
     @Override
-    public List<Estado> findAll() {
-        return retryTemplate.execute(arg0 -> ibgeProxyService.findAllStates());
+    public List<Estado> findAll() throws RuntimeException {
+       return ibgeProxyService.findAllStates();
     }
 
-    public List<EstadoResponse> getUfsAsResponse() {
+    public List<EstadoResponse> ObterEstadosComoResposta() {
         return findAll()
                 .stream()
                 .map(estado -> EstadoResponse.fromEntity(estado))
@@ -71,7 +65,7 @@ public class EstadoProxyService implements EstadoService {
     }
 
     @Override
-    public List<Estado> recoverFindAll(ProxyException ex, String ids) {
+    public List<Estado> recoverFindAll(RuntimeException ex, String ids) {
         return new ArrayList<>();
     }
 

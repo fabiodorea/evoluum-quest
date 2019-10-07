@@ -4,15 +4,11 @@ import com.evoluum.desafio.domain.Municipio;
 import com.evoluum.desafio.domain.interfaces.MunicipioService;
 import com.evoluum.desafio.domain.views.MunicipioResponse;
 import com.evoluum.desafio.exception.ProxyException;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.RequestEntity;
-import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -23,36 +19,26 @@ import java.util.stream.Collectors;
 @Service
 public class MunicipioProxyService implements MunicipioService {
 
-    private static final String URL_MUNICIPIOS_BY_UF = "/estados/{id}/municipios";
-    private static final String URL_MUNICIPIOS = "/municipios";
-
     private final IbgeProxyService ibgeProxyService;
-    private RetryTemplate retryTemplate;
 
-    public MunicipioProxyService(IbgeProxyService ibgeProxyService, RetryTemplate retryTemplate) {
+    public MunicipioProxyService(IbgeProxyService ibgeProxyService) {
         this.ibgeProxyService = ibgeProxyService;
-        this.retryTemplate = retryTemplate;
     }
 
     @Override
     public List<Municipio> findAll() {
-        return retryTemplate.execute(arg0 -> {
-            final URI uri = ibgeProxyService.getUriTemplate().expand(URL_MUNICIPIOS);
-            RequestEntity<Void> requestEntity = RequestEntity.get(uri).build();
-            return ibgeProxyService
-                    .doRequest(requestEntity, new ParameterizedTypeReference<List<Municipio>>(){});
-        });
+        return ibgeProxyService.findAllCountys();
     }
 
     @Override
-    public Municipio findByName(String name) throws Exception {
+    public Municipio findByName(String name) {
         try {
             Objects.requireNonNull(name, "O nome não pode ser nulo");
-            return retryTemplate.execute(arg0 -> findAll()
+            return findAll()
                     .stream()
                     .filter(municipio -> municipio.getNome().equalsIgnoreCase(name))
                     .findFirst()
-                    .get());
+                    .get();
         } catch (Exception e){
             throw new ProxyException(e.getMessage(), e);
         }
@@ -60,13 +46,7 @@ public class MunicipioProxyService implements MunicipioService {
 
     @Override
     public List<Municipio> findByUfIds(String ids) {
-        return retryTemplate.execute(arg0 ->{
-                Objects.requireNonNull(ids, "O parametro ids não pode ser nulo");
-                final URI uri = ibgeProxyService.getUriTemplate().expand(URL_MUNICIPIOS_BY_UF, ids);
-                RequestEntity<Void> requestEntity = RequestEntity.get(uri).build();
-                return ibgeProxyService
-                        .doRequest(requestEntity, new ParameterizedTypeReference<List<Municipio>>(){});
-        });
+        return ibgeProxyService.findCountyByStateId(ids);
     }
 
     public List<MunicipioResponse> findByUfAsResponse(String ids) {

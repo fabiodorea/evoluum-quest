@@ -10,8 +10,8 @@ import java.util.List;
 public interface EstadoService {
 
     @Recover
-    List<Estado> recoverFindAll(ProxyException ex, String ids);
+    List<Estado> recoverFindAll(RuntimeException ex, String ids);
 
-    @CircuitBreaker(value = { ProxyException.class})
+    @CircuitBreaker(value = { RuntimeException.class}, maxAttempts = 3, resetTimeout = 8000L)
     List<Estado> findAll() throws Exception;
 }

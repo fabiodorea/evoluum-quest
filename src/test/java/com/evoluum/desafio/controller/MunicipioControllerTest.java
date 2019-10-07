@@ -4,7 +4,6 @@ import com.evoluum.desafio.domain.Municipio;
 import com.evoluum.desafio.domain.views.MunicipioResponse;
 import com.evoluum.desafio.service.MunicipioProxyService;
 import com.evoluum.desafio.util.MockUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,12 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.util.ResourceUtils;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
@@ -43,7 +37,7 @@ public class MunicipioControllerTest {
     @Test
     public void shouldReturnCountys() throws Exception {
 
-        List<MunicipioResponse> municipios = MockUtils.findCountysByUf_28();
+        List<MunicipioResponse> municipios = MockUtils.findCountysByUf_28_After();
 
         when(municipioProxyService.findByUfAsResponse("28"))
                 .thenReturn(municipios);

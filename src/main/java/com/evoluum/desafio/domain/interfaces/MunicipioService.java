@@ -24,14 +24,14 @@ public interface MunicipioService {
     List<Municipio> recoverFindByUf(ProxyException ex, String ids);
 
 
-    @CircuitBreaker(value = { ProxyException.class })
+    @CircuitBreaker(value = { ProxyException.class }, maxAttempts = 2, resetTimeout = 8000)
     List<Municipio> findAll() throws Exception;
 
-    @CircuitBreaker(value = { ProxyException.class })
+    @CircuitBreaker(value = { ProxyException.class }, maxAttempts = 2, resetTimeout = 8000)
     @Cacheable(value = "municipio", key="#name")
     Municipio findByName(String name) throws Exception;
 
-    @CircuitBreaker(value = { ProxyException.class })
+    @CircuitBreaker(value = { ProxyException.class }, maxAttempts = 2, resetTimeout = 8000)
     List<Municipio> findByUfIds(String ids) throws Exception;
 
 }

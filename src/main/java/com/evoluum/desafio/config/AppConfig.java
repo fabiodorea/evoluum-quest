@@ -19,7 +19,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import java.util.Collections;
 
 @Configuration
-@EnableCaching
 @EnableRetry
 @EnableSwagger2
 public class AppConfig {
@@ -49,6 +48,7 @@ public class AppConfig {
                 .build()
                 .apiInfo(apiInfo());
     }
+
     private ApiInfo apiInfo() {
         return new ApiInfo(
                 "Evoluum REST API",

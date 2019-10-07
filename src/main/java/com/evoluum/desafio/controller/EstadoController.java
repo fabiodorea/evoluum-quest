@@ -3,7 +3,6 @@ package com.evoluum.desafio.controller;
 import com.evoluum.desafio.domain.views.EstadoResponse;
 import com.evoluum.desafio.service.EstadoProxyService;
 import com.evoluum.desafio.util.Utils;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,7 +33,7 @@ public class EstadoController {
 
     @GetMapping("api/localidades/estados")
     public ResponseEntity<List<EstadoResponse>> findAll() {
-        return new ResponseEntity<>(estadoProxyService.getUfsAsResponse(), HttpStatus.OK);
+        return new ResponseEntity<>(estadoProxyService.ObterEstadosComoResposta(), HttpStatus.OK);
     }
 
     @GetMapping("api/localidades/estados/download")

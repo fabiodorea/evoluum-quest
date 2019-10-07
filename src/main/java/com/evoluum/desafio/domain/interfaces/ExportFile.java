@@ -1,4 +1,4 @@
-package com.evoluum.desafio.service;
+package com.evoluum.desafio.domain.interfaces;
 
 import java.io.IOException;
 import java.nio.file.Path;
