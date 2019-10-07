@@ -1,8 +1,9 @@
-package com.evoluum.desafio;
+package com.evoluum.desafio.controller;
 
-import com.evoluum.desafio.controller.UfController;
-import com.evoluum.desafio.domain.Estado;
-import com.evoluum.desafio.service.UfProxyService;
+import com.evoluum.desafio.domain.views.EstadoResponse;
+import com.evoluum.desafio.service.EstadoProxyService;
+import com.evoluum.desafio.util.MockUtils;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,36 +12,39 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.util.ResourceUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.List;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(MockitoJUnitRunner.class)
-public class EstadosTest {
+public class EstadoControllerTest {
 
     @Mock
-    private UfProxyService ufProxyService;
+    private EstadoProxyService estadoProxyService;
 
     private MockMvc mockMvc;
 
     @Before
     public void setup() {
-        UfController ufController = new UfController(ufProxyService);
-        mockMvc = MockMvcBuilders.standaloneSetup(ufController).build();
+        EstadoController estadoController = new EstadoController(estadoProxyService);
+        mockMvc = MockMvcBuilders.standaloneSetup(estadoController).build();
     }
 
     @Test
     public void shouldReturnEstates() throws Exception {
-        List<Estado> estados = mockEstados();
+        List<EstadoResponse> estados = MockUtils.findAllStates();
 
-        when(ufProxyService.getUfs())
+        when(estadoProxyService.getUfsAsResponse())
                 .thenReturn(estados);
 
         mockMvc.perform(
@@ -49,11 +53,6 @@ public class EstadosTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$").isNotEmpty());
-    }
-
-    private List mockEstados() throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(new File("estates.json"), List.class);
     }
 
 }

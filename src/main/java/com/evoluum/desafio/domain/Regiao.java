@@ -5,7 +5,7 @@ import java.io.Serializable;
 public class Regiao implements Serializable {
 
     private int id;
-    private char sigla;
+    private String sigla;
     private String nome;
 
     public Regiao() {
@@ -19,11 +19,11 @@ public class Regiao implements Serializable {
         this.id = id;
     }
 
-    public char getSigla() {
+    public String getSigla() {
         return sigla;
     }
 
-    public void setSigla(char sigla) {
+    public void setSigla(String sigla) {
         this.sigla = sigla;
     }
 
@@ -33,5 +33,14 @@ public class Regiao implements Serializable {
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    @Override
+    public String toString() {
+        return "Regiao{" +
+                "id=" + id +
+                ", sigla='" + sigla + '\'' +
+                ", nome='" + nome + '\'' +
+                '}';
     }
 }

@@ -5,6 +5,7 @@ import java.io.Serializable;
 public class Microrregiao implements Serializable {
     private int id;
     private String nome;
+    private Mesorregiao mesorregiao;
 
     public Microrregiao() {
     }
@@ -23,5 +24,22 @@ public class Microrregiao implements Serializable {
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    public Mesorregiao getMesorregiao() {
+        return mesorregiao;
+    }
+
+    public void setMesorregiao(Mesorregiao mesorregiao) {
+        this.mesorregiao = mesorregiao;
+    }
+
+    @Override
+    public String toString() {
+        return "Microrregiao{" +
+                "id=" + id +
+                ", nome='" + nome + '\'' +
+                ", mesorregiao=" + mesorregiao +
+                '}';
     }
 }
