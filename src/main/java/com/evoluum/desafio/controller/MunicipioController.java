@@ -4,7 +4,6 @@ import com.evoluum.desafio.domain.views.LocalidadeResponse;
 import com.evoluum.desafio.domain.views.MunicipioResponse;
 import com.evoluum.desafio.service.MunicipioProxyService;
 import com.evoluum.desafio.util.Utils;
-import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,12 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -48,14 +42,7 @@ public class MunicipioController {
     public void downloadCsv(HttpServletResponse response, @PathVariable("ids") String ids) throws IOException {
         try {
             String csvFileName = Utils.formatResponse(response, "cidades");
-            Path path = municipioProxyService.generateCsv(csvFileName, municipioProxyService.findByUfIds(ids));
-
-            InputStream inputStream = new FileInputStream(new File(path.toUri())); //load the file
-            IOUtils.copy(inputStream, response.getOutputStream());
-            response.flushBuffer();
-            inputStream.close();
-            //dele local file after download
-            Files.deleteIfExists(path);
+            municipioProxyService.generateCsv(csvFileName, municipioProxyService.findByUfIds(ids), response);
         } catch (Exception e){
             throw e;
         }

@@ -15,23 +15,43 @@ import java.util.List;
 public interface MunicipioService {
 
     @Recover
-    List<Municipio> recoverFindAll(ProxyException ex);
+    List<Municipio> recoverFindAll(RuntimeException ex);
 
     @Recover
-    Municipio recoverFindByName(ProxyException ex, String name);
+    Municipio recoverFindByName(RuntimeException ex, String name);
 
     @Recover
-    List<Municipio> recoverFindByUf(ProxyException ex, String ids);
+    List<Municipio> recoverFindByUf(RuntimeException ex, String ids);
 
 
-    @CircuitBreaker(value = { ProxyException.class }, maxAttempts = 2, resetTimeout = 8000)
+    /**
+     * Retorna a lista completa de municípios da República.
+     *
+     * @return List<Municipio>
+     * @throws Exception
+     */
+    @CircuitBreaker(value = { RuntimeException.class }, maxAttempts = 2, resetTimeout = 8000)
     List<Municipio> findAll() throws Exception;
 
-    @CircuitBreaker(value = { ProxyException.class }, maxAttempts = 2, resetTimeout = 8000)
+    /**
+     * Retorna um ou mais municípios que possui o nome igual a <code>name</code>
+     *
+     * @param name
+     * @return Municipio
+     * @throws RuntimeException
+     */
+    @CircuitBreaker(value = { RuntimeException.class }, maxAttempts = 2, resetTimeout = 8000)
     @Cacheable(value = "municipio", key="#name")
-    Municipio findByName(String name) throws Exception;
+    Municipio findByName(String name) throws RuntimeException;
 
-    @CircuitBreaker(value = { ProxyException.class }, maxAttempts = 2, resetTimeout = 8000)
-    List<Municipio> findByUfIds(String ids) throws Exception;
+    /**
+     * Retorna uma lista de Municipios dos Estados que possuem os <code>ids</code> informados.
+     *
+     * @param ids
+     * @return
+     * @throws RuntimeException
+     */
+    @CircuitBreaker(value = { RuntimeException.class }, maxAttempts = 2, resetTimeout = 8000)
+    List<Municipio> findByUfIds(String ids) throws RuntimeException;
 
 }

@@ -2,11 +2,13 @@ package com.evoluum.desafio.service;
 
 import com.evoluum.desafio.domain.Estado;
 import com.evoluum.desafio.domain.interfaces.EstadoService;
+import com.evoluum.desafio.domain.interfaces.ExportFile;
 import com.evoluum.desafio.domain.views.EstadoResponse;
-import com.evoluum.desafio.exception.ProxyException;
+import com.evoluum.desafio.util.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -18,7 +20,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
-public class EstadoProxyService implements EstadoService {
+public class EstadoProxyService implements EstadoService, ExportFile {
 
     @Autowired
     private final IbgeProxyService ibgeProxyService;
@@ -32,14 +34,15 @@ public class EstadoProxyService implements EstadoService {
        return ibgeProxyService.findAllStates();
     }
 
-    public List<EstadoResponse> ObterEstadosComoResposta() {
+    public List<EstadoResponse> findStatesAsResponse() {
         return findAll()
                 .stream()
                 .map(estado -> EstadoResponse.fromEntity(estado))
                 .collect(Collectors.toList());
     }
 
-    public Path generateCsv(String fileName, List localidades) throws IOException {
+    @Override
+    public void generateCsv(String fileName, List localidades, HttpServletResponse response) throws IOException {
         Objects.requireNonNull(fileName, "O nome do arquivo não ser nullo.");
         Objects.requireNonNull(localidades, "A lista de estados não pode ser nulla.");
         Path path = Files.createFile(ibgeProxyService.getWorkDir().resolve(fileName));
@@ -59,9 +62,11 @@ public class EstadoProxyService implements EstadoService {
                     .append(e.getRegiao().getNome())
                     .append("\n");
             pw.write(csvData.toString());
+            csvData.setLength(0);
         });
         pw.close();
-        return path;
+
+        FileUtils.writeFileToOutput(path, response.getOutputStream());
     }
 
     @Override

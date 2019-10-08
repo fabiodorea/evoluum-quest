@@ -4,11 +4,12 @@ import com.evoluum.desafio.domain.Municipio;
 import com.evoluum.desafio.domain.interfaces.MunicipioService;
 import com.evoluum.desafio.domain.views.MunicipioResponse;
 import com.evoluum.desafio.exception.ProxyException;
+import com.evoluum.desafio.util.FileUtils;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -56,7 +57,7 @@ public class MunicipioProxyService implements MunicipioService {
                 .collect(Collectors.toList());
     }
 
-    public Path generateCsv(String fileName, List localidades) throws IOException {
+    public void generateCsv(String fileName, List localidades, HttpServletResponse response) throws IOException {
         Objects.requireNonNull(fileName, "O nome do arquivo não pode ser nulo.");
         Objects.requireNonNull(localidades, "A lista de municípios não pode ser nula.");
         Path path = Files.createFile(ibgeProxyService.getWorkDir().resolve(fileName));
@@ -76,23 +77,25 @@ public class MunicipioProxyService implements MunicipioService {
                     .append(e.getNomeFormatado())
                     .append("\n");
             pw.write(csvData.toString());
+            csvData.setLength(0);
         });
         pw.close();
-        return path;
+
+        FileUtils.writeFileToOutput(path, response.getOutputStream());
     }
 
     @Override
-    public List<Municipio> recoverFindAll(ProxyException ex) {
+    public List<Municipio> recoverFindAll(RuntimeException ex) {
         return new ArrayList<>();
     }
 
     @Override
-    public Municipio recoverFindByName(ProxyException ex, String name){
+    public Municipio recoverFindByName(RuntimeException ex, String name){
         return new Municipio();
     }
 
     @Override
-    public List<Municipio> recoverFindByUf(ProxyException ex, String ids) {
+    public List<Municipio> recoverFindByUf(RuntimeException ex, String ids) {
         return new ArrayList<>();
     }
 

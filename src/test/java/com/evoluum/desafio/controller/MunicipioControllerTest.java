@@ -4,14 +4,19 @@ import com.evoluum.desafio.domain.Municipio;
 import com.evoluum.desafio.domain.views.MunicipioResponse;
 import com.evoluum.desafio.service.MunicipioProxyService;
 import com.evoluum.desafio.util.MockUtils;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
@@ -64,5 +69,18 @@ public class MunicipioControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(2800308)))
                 .andExpect(jsonPath("$").isNotEmpty());
+    }
+
+    @Test
+    public void testDownloadFile() throws Exception {
+        Mockito.when(municipioProxyService.findByUfIds("28")).thenReturn(new ArrayList<>());
+        municipioProxyService.generateCsv("fileName", new ArrayList<>(), null);
+
+        MvcResult result = mockMvc.perform(
+                get("/api/localidades/estados/{ids}/municipios/download", "28")
+                .contentType(MediaType.APPLICATION_OCTET_STREAM))
+                .andExpect(status().isOk()).andReturn();
+        Assert.assertEquals(200, result.getResponse().getStatus());
+        Assert.assertEquals("text/csv", result.getResponse().getContentType());
     }
 }

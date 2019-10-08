@@ -2,9 +2,7 @@ package com.evoluum.desafio.service;
 
 import com.evoluum.desafio.domain.Estado;
 import com.evoluum.desafio.domain.views.EstadoResponse;
-import com.evoluum.desafio.exception.ProxyException;
 import com.evoluum.desafio.util.MockUtils;
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -13,7 +11,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,7 +46,7 @@ public class EstadoServiceTest {
         when(ibgeProxyService.findAllStates())
                 .thenReturn(estadosFromIbge);
 
-        List<EstadoResponse> estadosAfter = estadoProxyService.ObterEstadosComoResposta();
+        List<EstadoResponse> estadosAfter = estadoProxyService.findStatesAsResponse();
 
         assertThat(estados.size()).isSameAs(estadosAfter.size());
     }
