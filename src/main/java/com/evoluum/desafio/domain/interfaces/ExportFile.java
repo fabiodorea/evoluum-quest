@@ -10,11 +10,11 @@ public interface ExportFile {
 
     void generateCsv(String fileName, List localidades, HttpServletResponse response) throws IOException;
 
-    default void generatePdf(String fileName) throws IOException {
+    default void generatePdf(String fileName, List localidades, HttpServletResponse response) throws IOException {
 
     }
 
-    default void generateXml(String fileName) throws IOException {
+    default void generateXml(String fileName, List localidades, HttpServletResponse response) throws IOException {
 
     }
 }
